@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create NAT Gateway
+
+Parameters: 
+  VPCId:
+    Type: String 
+  PublicSubnetId:
+    Type: String
+  PrivateSubnetId:
+    Type: String
+  InternetGatewayId:
+    Type: String
+
+
+Resources: 
+  EIPForNAT:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+      - Key: Name
+        Value: "Group-12-NAT-EIP"
+  
+  NatGateway: 
+    Type: AWS::EC2::NatGateway  
+    Properties:
+      AllocationId: !GetAtt EIPForNAT.AllocationId
+      SubnetId: !Ref PublicSubnetId
+      Tags:
+        - Key: Name
+          Value: "Group-12-NAT-Gateway"
+Outputs:
+  NatGatewayId:
+    Value: !Ref NatGateway
