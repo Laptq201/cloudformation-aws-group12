@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create EC2 Instances
+
+
+Parameters: 
+  PublicSubnetId:
+    Type: String
+  PrivateSubnetId:
+    Type: String
+  VPCId:
+    Type: String
+  
+
+Resources:
+  PublicSecurityGroup: #Create Public Security Group
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via specific IP
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - CidrIp: 192.168.1.1/32
+          FromPort: 22
+          ToPort: 22
+          IpProtocol: tcp
+
+  
+  PrivateSecurityGroup: #Create Private Security Group
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access from Public instance
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          SourceSecurityGroupId: !GetAtt PublicSecurityGroup.GroupId
+        - IpProtocol: icmp 
+          FromPort: -1
+          ToPort: -1
+          SourceSecurityGroupId: !GetAtt PublicSecurityGroup.GroupId
+  
+
+  PublicEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0ebfd941bbafe70c6
+      SecurityGroupIds:
+        - !Ref PublicSecurityGroup
+      SubnetId: !Ref PublicSubnetId
+      KeyName: group12
+      Tags:
+        - Key: Name
+          Value: "Group-12-Public-EC2-Instance"
+    
+  PrivateEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0ebfd941bbafe70c6
+      NetworkInterfaces:
+        - GroupSet:
+          - !Ref PrivateSecurityGroup
+          AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          DeleteOnTermination: true
+          SubnetId: !Ref PrivateSubnetId
+      KeyName: group12
+      Tags:
+        - Key: Name
+          Value: "Group-12-Private-EC2-Instance"
+    
+
+
+ 
+
+
+Outputs:
+  PublicEC2Instance:
+    Description: Public EC2 Instance
+    Value: !Ref PublicEC2Instance
+  PrivateEC2Instance:
+    Description: Private EC2 Instance
+    Value: !Ref PrivateEC2Instance

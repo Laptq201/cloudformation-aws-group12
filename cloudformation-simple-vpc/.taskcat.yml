@@ -1,0 +1,12 @@
+project:
+  name: main-stack-test
+  regions:
+    - us-east-1
+  template: main.yaml
+tests:
+  main-stack-test:
+    template: main.yaml
+    regions:
+      - us-east-1
+    tags:
+      Project: group12-taskcat-test
