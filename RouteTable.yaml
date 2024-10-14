@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create Route Table
+
+
+Parameters: 
+  VPCId:
+    Type: String
+  PublicSubnetId:
+    Type: String
+  PrivateSubnetId:
+    Type: String
+  InternetGatewayId:
+    Type: String
+  NatGatewayId:
+    Type: String
+ 
+
+Resources: 
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCId
+      Tags:
+      - Key: Name
+        Value: "Group12-public-route-table"
+  
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGatewayId
+  
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetId
+      RouteTableId: !Ref PublicRouteTable
+  
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCId
+      Tags:
+      - Key: Name
+        Value: "Group12-private-route-table"
+
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGatewayId
+  
+  PrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnetId
+      RouteTableId: !Ref PrivateRouteTable
+      
+Outputs:
+  PublicRouteTableId:
+    Value: !Ref PublicRouteTable
+  PrivateRouteTableId:
+    Value: !Ref PrivateRouteTable
