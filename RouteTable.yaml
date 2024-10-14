@@ -16,7 +16,7 @@ Parameters:
  
 
 Resources: 
-  PublicRouteTable: #Create Public Route Table
+  PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPCId
@@ -37,7 +37,7 @@ Resources:
       SubnetId: !Ref PublicSubnetId
       RouteTableId: !Ref PublicRouteTable
   
-  PrivateRouteTable: #Create Private Route Table
+  PrivateRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPCId
