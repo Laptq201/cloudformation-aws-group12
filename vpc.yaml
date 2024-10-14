@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create VPC, Subnets, Route Tables, and EC2 Instances
+
+Resources: 
+  MyVPC: # create VPC
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16 
+      EnableDnsSupport: true 
+      EnableDnsHostnames: true 
+      Tags:
+        - Key: Name 
+          Value: "Group 12 VPC"
+          
+  
+  PublicSubnet: #create public subnet
+    Type: AWS::EC2::Subnet 
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true 
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      Tags:
+        - Key: Name 
+          Value: "Group-12-Public-Subnet"
+  
+  PrivateSubnet:  #create private subnet
+    Type: AWS::EC2::Subnet 
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      Tags:
+        - Key: Name 
+          Value: "Group-12-Private-Subnet"
+  
+  # Create Internet Gateway
+  InternetGateway: 
+    Type: AWS::EC2::InternetGateway
+    Properties: 
+      Tags: 
+        - Key: Name 
+          Value: "Group-12-Internet-Gateway"
+  
+  # Attach Internet Gateway to VPC
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref InternetGateway
+  
+  # Create Default Security Group
+  DefaultSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Default Security Group for VPC
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: "Group-12-Default-Security-Group"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+    
+Outputs:
+  VPCId:
+    Value: !Ref MyVPC
+  InternetGatewayId:
+    Value: !Ref InternetGateway
+  PublicSubnetId:
+    Value: !Ref PublicSubnet
+  PrivateSubnetId:
+    Value: !Ref PrivateSubnet
